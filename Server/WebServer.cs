@@ -36,12 +36,13 @@ namespace Server
                                 _clientThreads.RemoveAt(_clientThreads.Count - 1);
 
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-
+                        Debug.WriteLine("Loop");
+                        Debug.WriteLine(e.Message);
                     }
                 }
-                Debug.WriteLine("Clinet Connection");
+                Debug.WriteLine("Client Connection");
                 _clientThreads.Add(new Thread(new ThreadStart(Handle)));
                 _clientThreads[_clientThreads.Count - 1].Name = $"Client Thread {_clientThreads.Count - 1}";
                 _clientThreads[_clientThreads.Count - 1].Start();
@@ -50,8 +51,8 @@ namespace Server
 
         private void Handle()
         {
-                TcpClient client = null;
-                NetworkStream stream = null;
+            TcpClient client = null;
+            NetworkStream stream = null;
             try
             {
                 client = _receiver.AcceptTcpClient();
@@ -67,13 +68,16 @@ namespace Server
                 string path = request.Split("HTTP")[0].Split("/")[1].Trim();
 
                 string content = "";
-
+                int year = DateTime.Now.Year;
+                int day = DateTime.Now.Day;
+                string dayValue = DateTime.Now.DayOfWeek.ToString();
+                string time = DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second;
                 if (path == "")
                 {
                     Pages page = new();
                     content = page.Index();
                     content = $@"HTTP/1.1 200 OK
-                    Date: Mon, 27 Jul 2009 12:28:53 GMT
+                    Date: Mon, {day} Jul {year} {time} GMT
                     Server: Apache/2.2.14 (Win32)
                     Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
                     Content-Length: {content.Length}
@@ -87,7 +91,7 @@ namespace Server
                     Pages page = new();
                     content = page.Test();
                     content = $@"HTTP/1.1 200 OK
-                    Date: Mon, 27 Jul 2009 12:28:53 GMT
+                    Date: Mon, {day} Jul {year} {time} GMT
                     Server: Apache/2.2.14 (Win32)
                     Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
                     Content-Length: {content.Length}
@@ -99,7 +103,7 @@ namespace Server
                 else
                 {
                     content = $@"HTTP/1.1 404 NotFound
-                    Date: Mon, 27 Jul 2009 12:28:53 GMT
+                    Date: Mon, {day} Jul {year} {time} GMT
                     Server: Apache/2.2.14 (Win32)
                     Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
                     Content-Length: 0
